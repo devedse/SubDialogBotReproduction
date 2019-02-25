@@ -1,9 +1,5 @@
 ﻿using Microsoft.Bot.Builder;
 using Microsoft.Bot.Builder.Dialogs;
-using Microsoft.Bot.Schema;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,14 +11,14 @@ namespace SubDialogBot
 
         public ParentDialog() : base(nameof(ParentDialog))
         {
-            AddDialog(new ChildDialog());
-
             var waterfallSteps = new WaterfallStep[]
             {
                 SayHello,
                 SayHello2
             };
             AddDialog(new WaterfallDialog(waterfallDialogName, waterfallSteps));
+
+            AddDialog(new ChildDialog());
         }
 
         private async Task<DialogTurnResult> SayHello(WaterfallStepContext stepContext, CancellationToken cancellationToken)

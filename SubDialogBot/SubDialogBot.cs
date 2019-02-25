@@ -77,12 +77,33 @@ namespace SubDialogBot
             // Create a dialog context
             var dc = await Dialogs.CreateContextAsync(turnContext);
 
+            var dialogResult = await dc.ContinueDialogAsync();
+
             // Handle Message activity type, which is the main activity type for shown within a conversational interface
             // Message activities may contain text, speech, interactive cards, and binary or unknown attachments.
             // see https://aka.ms/about-bot-activity-message to learn more about the message and other activity types
             if (turnContext.Activity.Type == ActivityTypes.Message)
             {
-                await dc.BeginDialogAsync(nameof(ParentDialog));
+                // examine results from active dialog
+                switch (dialogResult.Status)
+                {
+                    case DialogTurnStatus.Empty:
+
+                        await dc.BeginDialogAsync(nameof(ParentDialog));
+                        break;
+
+                    case DialogTurnStatus.Waiting:
+                        // The active dialog is waiting for a response from the user, so do nothing.
+                        break;
+
+                    case DialogTurnStatus.Complete:
+                        await dc.EndDialogAsync();
+                            break;
+
+                    default:
+                        await dc.CancelAllDialogsAsync();
+                        break;
+                }
 
                 // Save the new turn count into the conversation state.
                 await _accessors.ConversationState.SaveChangesAsync(turnContext);
